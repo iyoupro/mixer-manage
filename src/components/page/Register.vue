@@ -1,7 +1,7 @@
 <template>
     <div class="login-wrap">
         <div class="ms-login">
-            <div class="ms-title">后台管理系统</div>
+            <div class="ms-title">后台管理系统-注册</div>
             <el-form :model="param" :rules="rules" ref="login" label-width="0px" class="ms-content">
                 <el-form-item prop="username">
                     <el-input v-model="param.username" placeholder="username">
@@ -13,11 +13,20 @@
                         <el-button slot="prepend" icon="el-icon-lx-lock"></el-button>
                     </el-input>
                 </el-form-item>
+                <el-form-item prop="confirmPassword">
+                    <el-input
+                        type="password"
+                        placeholder="confirm password"
+                        v-model="param.confirmPassword"
+                        @keyup.enter.native="submitForm()"
+                    >
+                        <el-button slot="prepend" icon="el-icon-lx-lock"></el-button>
+                    </el-input>
+                </el-form-item>
                 <div class="login-btn">
-                    <el-button type="primary" @click="submitForm()">登录</el-button>
-                    <el-button type="info" @click="register()">注册</el-button>
+                    <el-button type="primary" @click="submitForm()">注册</el-button>
                 </div>
-                <p class="login-tips">Tips : 用户名和密码随便填。</p>
+                <p class="login-tips">Tips : 不要忘记自己的密码哦</p>
             </el-form>
         </div>
     </div>
@@ -28,12 +37,14 @@ export default {
     data: function() {
         return {
             param: {
-                username: 'admin',
-                password: '123123'
+                username: '',
+                password: '',
+                confirmPassword: ''
             },
             rules: {
                 username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-                password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+                password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+                confirmPassword: [{ required: true, message: '请输入密码', trigger: 'blur' }]
             }
         };
     },
@@ -41,17 +52,20 @@ export default {
         submitForm() {
             this.$refs.login.validate(valid => {
                 if (valid) {
+                    if (this.param.password !== this.param.confirmPassword) {
+                        this.$message.error('确认密码错误，请输入正确的密码！');
+                        return false;
+                    }
                     this.$axios({
                         url: `http://132.232.212.135:3005/Mixer/login?username=${this.param.username}&password=${this.param.password}`,
                         method: 'get'
                     }).then(res => {
                         console.log(res);
                         if (res.isSuccess) {
-                            this.$message.success('登录成功');
-                            localStorage.setItem('ms_username', this.param.username);
-                            this.$router.push('/Register');
+                            this.$message.success('注册成功');
+                            this.$router.push('/login');
                         } else {
-                            this.$message.error('登录失败,请检查账户名和密码');
+                            this.$message.error('注册失败,请检查网络');
                         }
                     });
                 } else {
